@@ -1,4 +1,4 @@
-package decoder
+package headers
 
 import (
 	"reflect"
@@ -18,15 +18,21 @@ func TestGetHeaderFromFileName(t *testing.T) {
 		{
 			name: "Get Header from rgb-triangle.bmp",
 			args: args{
-				fileName: "../test/bmps/original/rgb-triangle.bmp",
+				fileName: "../../test/bmps/original/rgb-triangle.bmp",
 			},
 			want: &Header{
-				BITMAPFILEHEADER{
+				BITMAPFILEHEADER: &BITMAPFILEHEADER{
 					Signature: BitmapSignature,
-					FileSize: 120054,
-					Reserved: BitmapReserved,
-					DataSize: 120054 -
+					FileSize:  120054,
+					Reserved:  BitmapReserved,
+					DataSize:  expectedInfoHeaderSize + fileHeaderSize,
 				},
+				InfoHeader: InfoHeader(&BITMAPINFOHEADER{
+					Size:   expectedInfoHeaderSize,
+					Width:  200,
+					Height: 200,
+					Planes: 1,
+				}),
 			},
 			wantErr: false,
 		},
@@ -35,11 +41,11 @@ func TestGetHeaderFromFileName(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := GetHeaderFromFileName(tt.args.fileName)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("GetHeaderFromFileName() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("GetHeaderFromFileName() error = %+v, wantErr %+v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("GetHeaderFromFileName() got = %v, want %v", got, tt.want)
+				t.Errorf("GetHeaderFromFileName() got = \n%+v\nwant\n%+v", got, tt.want)
 			}
 		})
 	}
