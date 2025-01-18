@@ -1,7 +1,5 @@
 package headers
 
-import "fmt"
-
 // BitmapSignature is the bitmap magic number or file signature.
 // The first two bytes of a BMP file will be the characters B and M.
 // B is ascii 0x42. M is ascii 0x4D
@@ -30,7 +28,4 @@ const fileHeaderSize = 14
 // size returns the size of the file header, which is always 14
 func (h *BITMAPFILEHEADER) size() uint32 {
 	return fileHeaderSize
-}
-func (h *BITMAPFILEHEADER) String() string {
-	return fmt.Sprintf("{Signature:%d FileSize:%d Reserved:%d DataSize:%d }", h.Signature, h.FileSize, h.Reserved, h.DataSize)
 }

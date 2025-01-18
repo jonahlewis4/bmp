@@ -10,13 +10,10 @@ import (
 type Header struct {
 	*BITMAPFILEHEADER
 	InfoHeader
+	fmt.Stringer //literally all this means is that this struct has a String() function
 }
 type InfoHeader interface {
 	size() uint32
-
-	//Stringer is used for testing and debugging. It allows us to customize what this object looks like
-	//when %s is used to format it
-	fmt.Stringer
 }
 
 func GetHeaderFromReader(reader io.Reader) (*Header, error) {
@@ -27,7 +24,16 @@ func GetHeaderFromReader(reader io.Reader) (*Header, error) {
 	}
 
 	//TODO: determine info header type and decode based on the type.
+
 	var infoHeader InfoHeader
+	var infoHeaderSize uint32
+	err = binary.Read(reader, binary.LittleEndian, &infoHeaderSize)
+	if err != nil {
+		return nil, fmt.Errorf("failed to determine size of bmp image: %w", err)
+	}
+
+	//TODO this won't work because because there are potentially color tables and palleting, meaning the DataSize
+	//which is also known as offset, is not a reliable way of determining the info header type.
 	switch fileHeader.DataSize - fileHeader.size() {
 	case expectedInfoHeaderSize:
 		infoHeader = &BITMAPINFOHEADER{}
