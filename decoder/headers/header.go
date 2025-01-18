@@ -27,10 +27,16 @@ func GetHeaderFromReader(reader io.Reader) (*Header, error) {
 	}
 
 	//TODO: determine info header type and decode based on the type.
-	infoHeader := &BITMAPINFOHEADER{}
-	err = binary.Read(reader, binary.LittleEndian, infoHeader)
-	if err != nil {
-		return nil, fmt.Errorf("error reading info header: %w", err)
+	var infoHeader InfoHeader
+	switch fileHeader.DataSize - fileHeader.size() {
+	case expectedInfoHeaderSize:
+		infoHeader = &BITMAPINFOHEADER{}
+		err = binary.Read(reader, binary.LittleEndian, infoHeader)
+		if err != nil {
+			return nil, fmt.Errorf("error reading info header: %w", err)
+		}
+	default:
+		return nil, fmt.Errorf("unknown Info Header size: %d", fileHeader.DataSize)
 	}
 
 	return &Header{
