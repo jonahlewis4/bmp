@@ -1,6 +1,8 @@
 package headers
 
 import (
+	"bufio"
+	"bytes"
 	"encoding/binary"
 	"fmt"
 	"io"
@@ -17,32 +19,38 @@ type InfoHeader interface {
 }
 
 func GetHeaderFromReader(reader io.Reader) (*Header, error) {
+	bufReader := bufio.NewReader(reader)
+
 	fileHeader := &BITMAPFILEHEADER{}
-	err := binary.Read(reader, binary.LittleEndian, fileHeader)
+	err := binary.Read(bufReader, binary.LittleEndian, fileHeader)
 	if err != nil {
 		return nil, fmt.Errorf("error reading file header: %w", err)
 	}
 
-	//TODO: determine info header type and decode based on the type.
+	//peek ahead to determine the size of the bitmap.
 
 	var infoHeader InfoHeader
 	var infoHeaderSize uint32
-	err = binary.Read(reader, binary.LittleEndian, &infoHeaderSize)
+
+	sizeBytes, err := bufReader.Peek(binary.Size(infoHeaderSize))
+	if err != nil {
+		return nil, fmt.Errorf("error determining size of header: %w", err)
+	}
+	err = binary.Read(bytes.NewReader(sizeBytes), binary.LittleEndian, &infoHeaderSize)
 	if err != nil {
 		return nil, fmt.Errorf("failed to determine size of bmp image: %w", err)
 	}
 
-	//TODO this won't work because because there are potentially color tables and palleting, meaning the DataSize
-	//which is also known as offset, is not a reliable way of determining the info header type.
-	switch fileHeader.DataSize - fileHeader.size() {
+	//determine the info header type based on the header size.
+	switch infoHeaderSize {
 	case expectedInfoHeaderSize:
 		infoHeader = &BITMAPINFOHEADER{}
-		err = binary.Read(reader, binary.LittleEndian, infoHeader)
+		err = binary.Read(bufReader, binary.LittleEndian, infoHeader)
 		if err != nil {
 			return nil, fmt.Errorf("error reading info header: %w", err)
 		}
 	default:
-		return nil, fmt.Errorf("unknown Info Header size: %d", fileHeader.DataSize)
+		return nil, fmt.Errorf("unsupported BITMAP type. Specifically, no info header of size %d bytes is supported", infoHeaderSize)
 	}
 
 	return &Header{
