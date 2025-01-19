@@ -12,13 +12,16 @@ import (
 type Header struct {
 	*BITMAPFILEHEADER
 	InfoHeader
-	fmt.Stringer //literally all this means is that this struct has a String() function
+	PixelDataSize uint32
+	fmt.Stringer  //literally all this means is that this struct has a String() function
 }
 type InfoHeader interface {
 	size() uint32
+	pixelDataSize() uint32
 }
 
 func GetHeaderFromReader(reader io.Reader) (*Header, error) {
+
 	bufReader := bufio.NewReader(reader)
 
 	fileHeader := &BITMAPFILEHEADER{}
@@ -54,8 +57,9 @@ func GetHeaderFromReader(reader io.Reader) (*Header, error) {
 	}
 
 	return &Header{
-		BITMAPFILEHEADER: fileHeader,
 		InfoHeader:       infoHeader,
+		BITMAPFILEHEADER: fileHeader,
+		PixelDataSize:    infoHeader.pixelDataSize(),
 	}, nil
 }
 

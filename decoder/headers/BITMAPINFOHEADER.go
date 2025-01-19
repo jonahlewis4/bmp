@@ -32,3 +32,6 @@ const expectedInfoHeaderSize = 40
 func (h *BITMAPINFOHEADER) size() uint32 {
 	return h.size()
 }
+func (h *BITMAPINFOHEADER) pixelDataSize() uint32 {
+	return h.ImageSize
+}
