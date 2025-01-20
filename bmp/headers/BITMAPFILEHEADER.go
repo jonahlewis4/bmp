@@ -23,9 +23,9 @@ type BITMAPFILEHEADER struct {
 	DataSize  uint32 //File offset to Raster Data (offset until there are pixels)
 }
 
-const fileHeaderSize = 14
+const FileHeaderSize = 14
 
 // size returns the size of the file header, which is always 14
 func (h *BITMAPFILEHEADER) size() uint32 {
-	return fileHeaderSize
+	return FileHeaderSize
 }

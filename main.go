@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/jonahlewis4/bmp/decoder/headers"
+	"github.com/jonahlewis4/bmp/bmp/headers"
 	"time"
 )
 

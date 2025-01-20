@@ -27,11 +27,11 @@ type BITMAPINFOHEADER struct {
 	NumImportantColors uint32
 }
 
-const expectedInfoHeaderSize = 40
+const ExpectedInfoHeaderSize = 40
 
 func (h *BITMAPINFOHEADER) size() uint32 {
 	return h.size()
 }
-func (h *BITMAPINFOHEADER) pixelDataSize() uint32 {
+func (h *BITMAPINFOHEADER) PixelDataSize() uint32 {
 	return h.ImageSize
 }

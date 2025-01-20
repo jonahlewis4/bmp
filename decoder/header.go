@@ -1,30 +1,20 @@
-package headers
+package decoder
 
 import (
 	"bufio"
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"github.com/jonahlewis4/bmp/bmp/headers"
 	"io"
 	"os"
 )
 
-type Header struct {
-	*BITMAPFILEHEADER
-	InfoHeader
-	PixelDataSize uint32
-	fmt.Stringer  //literally all this means is that this struct has a String() function
-}
-type InfoHeader interface {
-	size() uint32
-	pixelDataSize() uint32
-}
-
-func GetHeaderFromReader(reader io.Reader) (*Header, error) {
+func GetHeaderFromReader(reader io.Reader) (*headers.Header, error) {
 
 	bufReader := bufio.NewReader(reader)
 
-	fileHeader := &BITMAPFILEHEADER{}
+	fileHeader := &headers.BITMAPFILEHEADER{}
 	err := binary.Read(bufReader, binary.LittleEndian, fileHeader)
 	if err != nil {
 		return nil, fmt.Errorf("error reading file header: %w", err)
@@ -32,7 +22,7 @@ func GetHeaderFromReader(reader io.Reader) (*Header, error) {
 
 	//peek ahead to determine the size of the bitmap.
 
-	var infoHeader InfoHeader
+	var infoHeader headers.InfoHeader
 	var infoHeaderSize uint32
 
 	sizeBytes, err := bufReader.Peek(binary.Size(infoHeaderSize))
@@ -46,8 +36,8 @@ func GetHeaderFromReader(reader io.Reader) (*Header, error) {
 
 	//determine the info header type based on the header size.
 	switch infoHeaderSize {
-	case expectedInfoHeaderSize:
-		infoHeader = &BITMAPINFOHEADER{}
+	case headers.ExpectedInfoHeaderSize:
+		infoHeader = &headers.BITMAPINFOHEADER{}
 		err = binary.Read(bufReader, binary.LittleEndian, infoHeader)
 		if err != nil {
 			return nil, fmt.Errorf("error reading info header: %w", err)
@@ -56,23 +46,19 @@ func GetHeaderFromReader(reader io.Reader) (*Header, error) {
 		return nil, fmt.Errorf("unsupported BITMAP type. Specifically, no info header of size %d bytes is supported", infoHeaderSize)
 	}
 
-	return &Header{
+	return &headers.Header{
 		InfoHeader:       infoHeader,
 		BITMAPFILEHEADER: fileHeader,
-		PixelDataSize:    infoHeader.pixelDataSize(),
+		PixelDataSize:    infoHeader.PixelDataSize(),
 	}, nil
 }
 
 // GetHeaderFromFileName parses the header of a BMP and errors if it reaches end of file before reading all the data
-func GetHeaderFromFileName(fileName string) (*Header, error) {
+func GetHeaderFromFileName(fileName string) (*headers.Header, error) {
 	file, err := os.Open(fileName)
 	if err != nil {
 		return nil, fmt.Errorf("error opening file '%s': %w", fileName, err)
 	}
 	defer file.Close()
 	return GetHeaderFromReader(file)
-}
-
-func (h *Header) String() string {
-	return fmt.Sprintf("File Header: %+v,\nInfo Header: %+v\n", h.BITMAPFILEHEADER, h.InfoHeader)
 }

@@ -1,6 +1,7 @@
-package headers
+package decoder
 
 import (
+	"github.com/jonahlewis4/bmp/bmp/headers"
 	"reflect"
 	"testing"
 )
@@ -12,28 +13,28 @@ func TestGetHeaderFromFileName(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    *Header
+		want    *headers.Header
 		wantErr bool
 	}{
 		{
 			name: "Get Header from rgb-triangle.bmp",
 			args: args{
-				fileName: "../../test/bmps/original/rgb-triangle.bmp",
+				fileName: "../test/bmps/original/rgb-triangle.bmp",
 			},
-			want: &Header{
-				BITMAPFILEHEADER: &BITMAPFILEHEADER{
-					Signature: BitmapSignature,
+			want: &headers.Header{
+				BITMAPFILEHEADER: &headers.BITMAPFILEHEADER{
+					Signature: headers.BitmapSignature,
 					FileSize:  120054,
-					Reserved:  BitmapReserved,
-					DataSize:  expectedInfoHeaderSize + fileHeaderSize,
+					Reserved:  headers.BitmapReserved,
+					DataSize:  headers.ExpectedInfoHeaderSize + headers.FileHeaderSize,
 				},
-				InfoHeader: InfoHeader(&BITMAPINFOHEADER{
-					Size:               expectedInfoHeaderSize,
+				InfoHeader: headers.InfoHeader(&headers.BITMAPINFOHEADER{
+					Size:               headers.ExpectedInfoHeaderSize,
 					Width:              200,
 					Height:             200,
 					Planes:             1,
 					BitsPerPixel:       24,
-					Compression:        BI_RGB,
+					Compression:        headers.BI_RGB,
 					ImageSize:          0,
 					HorizontalRes:      0,
 					VerticalRes:        0,
