@@ -1,13 +1,20 @@
 package main
 
 import (
-	"fmt"
-	"github.com/jonahlewis4/bmp/bmp/headers"
-	"time"
+	"github.com/jonahlewis4/bmp/decoder"
+	"log"
+	"os"
 )
 
 func main() {
-	time.Sleep(3 * time.Second)
-	header := headers.BITMAPINFOHEADER{}
-	fmt.Printf("%+v\n", header)
+	file, err := os.Open("test/bmps/original/rgb-triangle.bmp")
+	if err != nil {
+		log.Fatal(err)
+	}
+	decoder := decoder.NewDecoder(file)
+	_, err = decoder.Decode()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 }

@@ -31,6 +31,9 @@ func (d *Decoder) Decode() (image.Image, error) {
 		return nil, fmt.Errorf("error decoding bmp pixel data: %w", err)
 	}
 	d.bmp.PixelData = &pixelData
-	//TODO verify that this works, and add image.Image functions to bmp.
+	//TODO get the row size from the image header. store this in the bmp field RowSize which can be used to get individual pixels
+	d.bmp.RowSize = d.bmp.
+		//TODO verify that this works, and add image.Image functions to bmp.
+		fmt.Println(pixelData)
 	return d.bmp, nil
 }

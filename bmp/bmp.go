@@ -9,6 +9,7 @@ import (
 type Bmp struct {
 	Header    *headers.Header
 	PixelData *[]byte
+	rowSize   uint64
 }
 
 func (bmp *Bmp) ColorModel() color.Model {
