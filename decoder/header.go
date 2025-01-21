@@ -6,16 +6,13 @@ import (
 	"encoding/binary"
 	"fmt"
 	"github.com/jonahlewis4/bmp/bmp/headers"
-	"io"
 	"os"
 )
 
-func GetHeaderFromReader(reader io.Reader) (*headers.Header, error) {
-
-	bufReader := bufio.NewReader(reader)
+func GetHeaderFromBufReader(reader *bufio.Reader) (*headers.Header, error) {
 
 	fileHeader := &headers.BITMAPFILEHEADER{}
-	err := binary.Read(bufReader, binary.LittleEndian, fileHeader)
+	err := binary.Read(reader, binary.LittleEndian, fileHeader)
 	if err != nil {
 		return nil, fmt.Errorf("error reading file header: %w", err)
 	}
@@ -25,7 +22,7 @@ func GetHeaderFromReader(reader io.Reader) (*headers.Header, error) {
 	var infoHeader headers.InfoHeader
 	var infoHeaderSize uint32
 
-	sizeBytes, err := bufReader.Peek(binary.Size(infoHeaderSize))
+	sizeBytes, err := reader.Peek(binary.Size(infoHeaderSize))
 	if err != nil {
 		return nil, fmt.Errorf("error determining size of header: %w", err)
 	}
@@ -38,7 +35,7 @@ func GetHeaderFromReader(reader io.Reader) (*headers.Header, error) {
 	switch infoHeaderSize {
 	case headers.ExpectedInfoHeaderSize:
 		infoHeader = &headers.BITMAPINFOHEADER{}
-		err = binary.Read(bufReader, binary.LittleEndian, infoHeader)
+		err = binary.Read(reader, binary.LittleEndian, infoHeader)
 		if err != nil {
 			return nil, fmt.Errorf("error reading info header: %w", err)
 		}
@@ -60,5 +57,5 @@ func GetHeaderFromFileName(fileName string) (*headers.Header, error) {
 		return nil, fmt.Errorf("error opening file '%s': %w", fileName, err)
 	}
 	defer file.Close()
-	return GetHeaderFromReader(file)
+	return GetHeaderFromBufReader(bufio.NewReader(file))
 }

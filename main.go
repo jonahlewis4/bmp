@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/jonahlewis4/bmp/decoder"
 	"log"
 	"os"
@@ -12,9 +13,10 @@ func main() {
 		log.Fatal(err)
 	}
 	decoder := decoder.NewDecoder(file)
-	_, err = decoder.Decode()
+	img, err := decoder.Decode()
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println("first pixel: ", img.At(0, 0))
 
 }
